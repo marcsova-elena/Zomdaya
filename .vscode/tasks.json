@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "make",
+            "problemMatcher": ["$gcc"],
+            "detail": "Build the project using Makefile."
+        },
+        {
+            "label": "run",
+            "type": "shell",
+            "command": "export DISPLAY=:0 && ${workspaceFolder}/program",  // Adjust this to the correct path to your executable
+            "problemMatcher": [],
+            "dependsOn": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
