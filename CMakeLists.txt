@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(SFML_Template LANGUAGES CXX)
+project(Zomdaya LANGUAGES CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -18,4 +18,4 @@ add_executable(main ${SOURCES})
 target_include_directories(main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_compile_features(main PRIVATE cxx_std_20)
-target_link_libraries(main PRIVATE SFML::Graphics SFML::Window)
+target_link_libraries(main PRIVATE SFML::Graphics SFML::Window SFML::Audio)
