@@ -1,7 +1,6 @@
+#include <vector>
+#include "World.h"
 #include "events.hpp"
-#include "configuration.hpp"
-#include <SFML/Graphics/RectangleShape.hpp>
-#include "Player.h"
 
 int main()
 {
@@ -10,25 +9,26 @@ int main()
 
 	sf::Clock deltaClock;
 
-	sf::RectangleShape rectangle({conf::window_size_f.x, conf::window_size_f.y});
-	sf::Color background_color = {125, 220, 130};
-	rectangle.setFillColor(background_color);
-
-	Player* player = new Player();
+	World* world = new World();
 
     while(window.isOpen())
     {
 		float dt = deltaClock.restart().asSeconds();
 		processEvents(window);
-		
 
+		
 		window.clear();
 
-		window.draw(rectangle);
-		player->draw(&window);
+		world->update(dt, &window);
+
+		window.setView(world->camera);
+		
+		world->draw(&window);
 
 		window.display();
     }
+
+	delete world;
 
     return 0;
 }
