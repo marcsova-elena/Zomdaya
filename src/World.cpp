@@ -32,6 +32,9 @@ void World::update(float dt, sf::RenderWindow *window)
 	for(auto enemy : enemies)
 	{
 		enemy->update(dt, player->body.getPosition());
+		std::pair<sf::Vector2f, sf::Vector2f> pushVecs = get_circleCircle_collision_vectors(player->body, enemy->body, player->mass, enemy->mass);
+		player->move(pushVecs.first);
+		enemy->move(pushVecs.second);
 	}
 	for(auto bullet : player->bullets)
 	{
@@ -59,7 +62,7 @@ void World::update(float dt, sf::RenderWindow *window)
 	}
 
 	// Player walls collision
-	player->body.move(get_circleBorder_collision_vector(player->body, border));
+	player->body.move(get_circleBorder_collision_vector(player->body, border));	
 
 	center_camera();
 

@@ -72,7 +72,23 @@ sf::Vector2f get_circleBorder_collision_vector(const sf::CircleShape &circle, co
     return pushBack;
 }
 
-sf::Vector2f get_circleCircle_collision_vector(const sf::CircleShape &circle1, const sf::CircleShape &circle2)
+std::pair<sf::Vector2f, sf::Vector2f> get_circleCircle_collision_vectors(const sf::CircleShape &circle1, const sf::CircleShape &circle2, float mass1, float mass2)
 {
+	float radiuses = circle1.getRadius() + circle2.getRadius();
+	sf::Vector2f diff = circle1.getPosition() - circle2.getPosition();
+	float distSq = diff.lengthSquared();
+	// Check if collision has occurred
+	if(distSq <= (radiuses * radiuses) && distSq > 0.0001f)
+	{
+		float dist = std::sqrt(distSq);
+		sf::Vector2f normal = diff / dist;
+		float overlap = radiuses - dist;
 
+		float ratio1 = mass2 / (mass1 + mass2);
+		float ratio2 = mass1 / (mass1 + mass2);
+		sf::Vector2f push1 = normal * (overlap * ratio1);
+		sf::Vector2f push2 = -normal * (overlap * ratio2);
+		return {push1, push2}; 
+	}
+	return {{0.f, 0.f}, {0.f, 0.f}};	// no collision
 }

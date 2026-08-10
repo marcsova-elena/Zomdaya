@@ -56,6 +56,7 @@ void Player::update(float dt, sf::RenderWindow* window)
 
 void Player::move(sf::Vector2f pos_shift)
 {
+	if(pos_shift.x == 0 && pos_shift.y == 0) return;
 	body.move(pos_shift);
 }
 
