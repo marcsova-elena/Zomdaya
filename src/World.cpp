@@ -19,16 +19,66 @@ void World::draw(sf::RenderWindow *window)
 	{
 		enemy->draw(window);
 	}
+	for(auto bullet : player->bullets)
+	{
+		bullet->draw(window);
+	}
 }
 
 void World::update(float dt, sf::RenderWindow *window)
 {
 	player->update(dt, window);
+
 	for(auto enemy : enemies)
 	{
 		enemy->update(dt, player->body.getPosition());
 	}
+	for(auto bullet : player->bullets)
+	{
+		if(!bullet->isAlive) continue;
+		
+		bullet->update(dt);
+		
+		if(isCircleOutOfBounds(bullet->body, border))
+		{
+			bullet->isAlive = false;
+			continue;
+		}
+		for(auto enemy : enemies)
+		{
+			if(!enemy->isAlive) continue;
+			
+			// Enemy was shot
+			if(circle_collision(bullet->body, enemy->body))
+			{
+				enemy->damage(bullet->damage);
+				bullet->isAlive = false;
+				break;	//stop checking this bullet on other enemies
+			}
+		}
+	}
+
+	// Player walls collision
+	player->body.move(get_circleBorder_collision_vector(player->body, border));
+
 	center_camera();
+
+	// 3. Cleanup phase (free memory and shrink vectors)
+    std::erase_if(enemies, [](Enemy* enemy) {
+        if (!enemy || !enemy->isAlive) {
+            delete enemy;
+            return true;
+        }
+        return false;
+    });
+
+    std::erase_if(player->bullets, [](Bullet* bullet) {
+        if (!bullet || !bullet->isAlive) {
+            delete bullet;
+            return true;
+        }
+        return false;
+    });
 }
 
 // Clamps and centers the camera

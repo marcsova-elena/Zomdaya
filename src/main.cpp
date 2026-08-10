@@ -16,7 +16,6 @@ int main()
 		float dt = deltaClock.restart().asSeconds();
 		processEvents(window);
 
-		
 		window.clear();
 
 		world->update(dt, &window);

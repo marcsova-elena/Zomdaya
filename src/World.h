@@ -1,8 +1,8 @@
 #pragma once
-#include <SFML/Graphics.hpp>
 #include "configuration.hpp"
 #include "Player.h"
 #include "Enemy.h"
+#include "collisions.h"
 
 class World
 {
@@ -11,6 +11,7 @@ class World
 	~World();
 
 	sf::Vector2f mapSize = {1000, 1000};
+	sf::FloatRect border{{0, 0}, {mapSize.x, mapSize.y}};
 	sf::Color background_color = {125, 220, 130};
 	sf::RectangleShape background{mapSize};
 	sf::View camera{sf::Vector2f(conf::window_size_f) / 2.0f, sf::Vector2f(conf::window_size)};
