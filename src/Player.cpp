@@ -17,23 +17,26 @@ void Player::draw(sf::RenderWindow* window)
 
 void Player::update(float dt, sf::RenderWindow* window)
 {
-	// Keyboard movement - TODO acceleration and diagonal speed
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-	{
-		move({0, -speed * dt});
-	}
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-	{
-		move({0, speed * dt});
-	}
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-	{
-		move({-speed * dt, 0});
-	}
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-	{
-		move({speed * dt, 0});
-	}
+	// Gather input direction
+	sf::Vector2f inputDir = {0, 0};
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) inputDir.y -= 1;
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) inputDir.y += 1;
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) inputDir.x -= 1;
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) inputDir.x += 1;
+
+	// Normalize directional vector
+	if(inputDir.lengthSquared() > 0.f)
+		inputDir = inputDir.normalized();
+
+	sf::Vector2f targetVelocity = inputDir * speed;
+	
+	// Acceleration and deacceleration
+	if(inputDir.lengthSquared() > 0.f)
+		velocity += (targetVelocity - velocity) * acceleration * dt;
+	else
+		velocity -= velocity * friction * dt;
+
+	move(velocity * dt);
 
 	// Shooting timer increase
 	gun.shootTimer += dt;
@@ -58,6 +61,15 @@ void Player::move(sf::Vector2f pos_shift)
 {
 	if(pos_shift.x == 0 && pos_shift.y == 0) return;
 	body.move(pos_shift);
+}
+
+void Player::damage(float damage)
+{
+	health -= damage;
+	if(health <= 0)
+	{
+		isAlive = false;
+	}
 }
 
 Player::~Player()

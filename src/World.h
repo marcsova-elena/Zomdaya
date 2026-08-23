@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "collisions.h"
+#include "Box.h"
 
 class World
 {
@@ -17,6 +18,7 @@ class World
 	sf::View camera{sf::Vector2f(conf::window_size_f) / 2.0f, sf::Vector2f(conf::window_size)};
 	Player* player;
 	std::vector<Enemy*> enemies;
+	std::vector<Box*> boxes;
 
 	void draw(sf::RenderWindow *window);
 	void update(float dt, sf::RenderWindow *window);

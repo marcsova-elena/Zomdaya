@@ -2,11 +2,11 @@
 #include "configuration.hpp"
 #include <math.h>
 
-Enemy::Enemy()
+Enemy::Enemy(sf::Vector2f pos)
 {
 	body.setOrigin({radius, radius});
 	body.setRadius(radius);
-	body.setPosition({conf::window_size_f.x / 2, conf::window_size_f.y / 2});
+	body.setPosition(pos);
 	body.setFillColor(sf::Color::Red);
 }
 
@@ -16,14 +16,20 @@ void Enemy::draw(sf::RenderWindow* window)
 }
 
 void Enemy::update(float dt, sf::Vector2f playerPos)
-{
-	sf::Vector2f diff = playerPos - body.getPosition();
-	if(diff.lengthSquared() > 0.001f)	// To reduce twitching when no change in position
+{	
+	// Def needs revision lol
+	if(seesPlayer)
 	{
-		sf::Vector2f dir = diff.normalized();
-		move(dir * speed * dt);
+		sf::Vector2f diff = playerPos - body.getPosition();
+		if(diff.lengthSquared() > 0.001f)	// To reduce twitching when no change in position
+		{
+			sf::Vector2f dir = diff.normalized();
+			sf::Vector2f targetVelocity = dir * speed;
 
-		body.setRotation(dir.angle());
+			velocity += (targetVelocity - velocity) * acceleration * dt;
+			body.setRotation(dir.angle());
+			move(velocity * dt);
+		}
 	}
 }
 
