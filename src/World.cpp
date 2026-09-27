@@ -79,20 +79,24 @@ void World::update(float dt, sf::RenderWindow *window)
 	// Update player based off of player's input
 	player->update(dt, window);
 
+	/*
+		Collisions
+	*/
 	// Update enemies and their collisions with player
 	for(auto enemy : enemies)
 	{
 		enemy->update(dt, player->body.getPosition());
-		std::pair<sf::Vector2f, sf::Vector2f> pushVecs = get_circleCircle_collision_vectors(player->body, enemy->body, player->mass, enemy->mass);
+		std::pair<sf::Vector2f, sf::Vector2f> pushVecs = circleCircleCollision(player->body, enemy->body, player->mass, enemy->mass);
 		player->move(pushVecs.first);
 		enemy->move(pushVecs.second);
 	}
 
-	for(auto i = 0; i < enemies.size() - 1; i++)
+	// ssize for signed integer, otherwise would underflow
+	for(auto i = 0; i < std::ssize(enemies) - 1; i++)
 	{
 		for(auto j = i + 1; j < enemies.size(); j++)
 		{
-			std::pair<sf::Vector2f, sf::Vector2f> pushVecs = get_circleCircle_collision_vectors(enemies[i]->body, enemies[j]->body, enemies[i]->mass, enemies[j]->mass);
+			std::pair<sf::Vector2f, sf::Vector2f> pushVecs = circleCircleCollision(enemies[i]->body, enemies[j]->body, enemies[i]->mass, enemies[j]->mass);
 			enemies[i]->move(pushVecs.first);
 			enemies[j]->move(pushVecs.second);
 		}
@@ -104,7 +108,7 @@ void World::update(float dt, sf::RenderWindow *window)
 		
 		bullet->update(dt);
 		
-		if(isCircleOutOfBounds(bullet->body, border))
+		if(isOutOfBounds(bullet->body, border))
 		{
 			bullet->isAlive = false;
 			continue;
@@ -114,7 +118,7 @@ void World::update(float dt, sf::RenderWindow *window)
 			if(!enemy->isAlive) continue;
 			
 			// Enemy was shot
-			if(circle_collision(bullet->body, enemy->body))
+			if(areColiding(bullet->body, enemy->body))
 			{
 				enemy->damage(bullet->damage);
 				bullet->isAlive = false;
@@ -128,22 +132,31 @@ void World::update(float dt, sf::RenderWindow *window)
 	{
 		for(auto box : boxes)
 		{
-			enemy->move(get_circleBox_collision_vector(enemy->body, box->body));
+			CollisionResult col = checkSATCollision(enemy->body, box->body);
+			if(col.collided)
+			{
+				enemy->move(col.mtv);
+			}
 		}
 	}
 
 	// Player x walls collision
-	player->body.move(get_circleBorder_collision_vector(player->body, border));	
+	player->body.move(circleBorderCollision(player->body, border));	
 
 	//Player x boxes collision
 	for(auto box : boxes)
 	{
-		player->body.move(get_circleBox_collision_vector(player->body, box->body));
+		CollisionResult col = checkSATCollision(player->body, box->body);
+		if(col.collided)
+		{
+			player->move(col.mtv);
+		}
 	}
 
+	// Update camera on player
 	center_camera();
 
-	// 3. Cleanup phase (free memory and shrink vectors)
+	// Cleanup (free memory and shrink vectors)
     std::erase_if(enemies, [](Enemy* enemy) 
 	{
         if (!enemy || !enemy->isAlive) 
